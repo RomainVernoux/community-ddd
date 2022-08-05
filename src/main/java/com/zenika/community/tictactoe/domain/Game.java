@@ -1,6 +1,8 @@
 package com.zenika.community.tictactoe.domain;
 
 import java.util.Objects;
+import java.util.function.IntFunction;
+import java.util.function.Predicate;
 import java.util.stream.IntStream;
 
 public class Game {
@@ -34,7 +36,8 @@ public class Game {
     }
 
     private void endTurn() {
-        if (IntStream.rangeClosed(0, 2).anyMatch(this::rowIsTakenByOnePlayer)) {
+        if (traverseGrid().mapToObj(this::getElementForRow).anyMatch(isLineTakenByOnePlayer())
+                || traverseGrid().mapToObj(this::getElementForColumn).anyMatch(isLineTakenByOnePlayer())) {
             state = GameState.X_WON;
         }
 
@@ -43,11 +46,23 @@ public class Game {
         }
     }
 
-    private boolean rowIsTakenByOnePlayer(final int row) {
-        return IntStream.rangeClosed(0, 2)
-                .mapToObj(col -> elementAt(row, col))
+    private static IntStream traverseGrid() {
+        return IntStream.rangeClosed(0, 2);
+    }
+
+    private static Predicate<IntFunction<FieldState>> isLineTakenByOnePlayer() {
+        return elementResolver -> traverseGrid()
+                .mapToObj(elementResolver)
                 .filter(Objects::nonNull)
                 .count() == 3;
+    }
+
+    private IntFunction<FieldState> getElementForColumn(final int column) {
+        return row -> elementAt(row, column);
+    }
+
+    private IntFunction<FieldState> getElementForRow(final int row) {
+        return col -> elementAt(row, col);
     }
 
     private FieldState elementAt(final int row, final int col) {
