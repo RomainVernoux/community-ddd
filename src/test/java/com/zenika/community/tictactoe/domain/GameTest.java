@@ -61,4 +61,18 @@ class GameTest {
 
         assertThat(game.state()).isEqualTo(X_WON);
     }
+
+    @ParameterizedTest
+    @ValueSource(ints = {0, 1, 2})
+    void aGameIsOverWhenAllFieldsInAColumnAreTakenByAPlayer(final int takenColumn) throws FieldAlreadyTakenException {
+        final var game = new Game();
+        final var anotherColumn = (takenColumn + 1) % 3;
+        game.takeField(takenColumn, 0);
+        game.takeField(anotherColumn, 0);
+        game.takeField(takenColumn, 1);
+        game.takeField(anotherColumn, 1);
+        game.takeField(takenColumn, 2);
+
+        assertThat(game.state()).isEqualTo(X_WON);
+    }
 }
